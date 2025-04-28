@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>खर्च करें अरबपति का पैसा</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .counter {
+            width: 3rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .btn-buy, .btn-sell {
+            transition: all 0.2s ease;
+        }
+        .btn-buy:hover {
+            background-color: #38a169;
+        }
+        .btn-sell:hover {
+            background-color: #e53e3e;
+        }
+        .btn-sell:disabled, .btn-buy:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .money-value {
+            transition: color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- 余额显示 -->
+    <header class="header bg-white bg-opacity-90 shadow-md py-6 mb-8">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold text-center mb-2">खर्च करें अरबपति का पैसा</h1>
+            <div class="text-5xl font-bold text-center money-value" id="money-left">$100,000,000,000</div>
+            <div class="text-center mt-2">
+                <span class="text-gray-600">आपने खर्च किए हैं:</span> 
+                <span class="font-bold" id="money-spent">$0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 产品列表 -->
+    <main class="container mx-auto px-4 pb-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="products-container">
+            <!-- 产品将通过JavaScript动态添加 -->
+        </div>
+    </main>
+
+    <script>
+        // 初始金额
+        const INITIAL_AMOUNT = 100000000000;
+        let currentMoney = INITIAL_AMOUNT;
+        let moneySpent = 0;
+        
+        // 产品数据
+        const products = [
+            { id: 1, name: "बिग मैक", price: 2, image: "https://neal.fun/spend/images/big-mac.jpg", count: 0 },
+            { id: 2, name: "फ्लिप फ्लॉप्स", price: 3, image: "https://neal.fun/spend/images/flip-flops.jpg", count: 0 },
+            { id: 3, name: "कोका-कोला पैक", price: 5, image: "https://neal.fun/spend/images/coca-cola-pack.jpg", count: 0 },
+            { id: 4, name: "मूवी टिकट", price: 12, image: "https://neal.fun/spend/images/movie-ticket.jpg", count: 0 },
+            { id: 5, name: "किताब", price: 15, image: "https://neal.fun/spend/images/book.jpg", count: 0 },
+            { id: 6, name: "लॉबस्टर डिनर", price: 45, image: "https://neal.fun/spend/images/lobster-dinner.jpg", count: 0 },
+            { id: 7, name: "वीडियो गेम", price: 60, image: "https://neal.fun/spend/images/video-game.jpg", count: 0 },
+            { id: 8, name: "अमेज़न इको", price: 99, image: "https://neal.fun/spend/images/amazon-echo.jpg", count: 0 },
+            { id: 9, name: "नेटफ्लिक्स का एक साल", price: 100, image: "https://neal.fun/spend/images/year-of-netflix.jpg", count: 0 },
+            { id: 10, name: "एयर जॉर्डन", price: 125, image: "https://neal.fun/spend/images/air-jordans.jpg", count: 0 },
+            { id: 11, name: "एयरपॉड्स", price: 199, image: "https://neal.fun/spend/images/airpods.jpg", count: 0 },
+            { id: 12, name: "गेमिंग कंसोल", price: 299, image: "https://neal.fun/spend/images/gaming-console.jpg", count: 0 },
+            { id: 13, name: "ड्रोन", price: 350, image: "https://neal.fun/spend/images/drone.jpg", count: 0 },
+            { id: 14, name: "स्मार्टफोन", price: 699, image: "https://neal.fun/spend/images/smartphone.jpg", count: 0 },
+            { id: 15, name: "साइकिल", price: 800, image: "https://neal.fun/spend/images/bike.jpg", count: 0 },
+            { id: 16, name: "बिल्ली का बच्चा", price: 1500, image: "https://neal.fun/spend/images/kitten.jpg", count: 0 },
+            { id: 17, name: "कुत्ते का बच्चा", price: 1500, image: "https://neal.fun/spend/images/puppy.jpg", count: 0 },
+            { id: 18, name: "ऑटो रिक्शा", price: 2300, image: "https://neal.fun/spend/images/auto-rickshaw.jpg", count: 0 },
+            { id: 19, name: "घोड़ा", price: 2500, image: "https://neal.fun/spend/images/horse.jpg", count: 0 },
+            { id: 20, name: "खेत की एक एकड़ जमीन", price: 3000, image: "https://neal.fun/spend/images/acre-of-farmland.jpg", count: 0 },
+            { id: 21, name: "डिजाइनर हैंडबैग", price: 5500, image: "https://neal.fun/spend/images/designer-handbag.jpg", count: 0 },
+            { id: 22, name: "हॉट टब", price: 6000, image: "https://neal.fun/spend/images/hot-tub.jpg", count: 0 },
+            { id: 23, name: "लक्जरी वाइन", price: 7000, image: "https://neal.fun/spend/images/luxury-wine.jpg", count: 0 },
+            { id: 24, name: "हीरे की अंगूठी", price: 10000, image: "https://neal.fun/spend/images/diamond-ring.jpg", count: 0 },
+            { id: 25, name: "जेट स्की", price: 12000, image: "https://neal.fun/spend/images/jet-ski.jpg", count: 0 },
+            { id: 26, name: "रोलेक्स", price: 15000, image: "https://neal.fun/spend/images/rolex.jpg", count: 0 },
+            { id: 27, name: "फोर्ड एफ-150", price: 30000, image: "https://neal.fun/spend/images/ford-f-150.jpg", count: 0 },
+            { id: 28, name: "टेस्ला", price: 75000, image: "https://neal.fun/spend/images/tesla.jpg", count: 0 },
+            { id: 29, name: "मॉन्स्टर ट्रक", price: 150000, image: "https://neal.fun/spend/images/monster-truck.jpg", count: 0 },
+            { id: 30, name: "फेरारी", price: 250000, image: "https://neal.fun/spend/images/ferrari.jpg", count: 0 },
+            { id: 31, name: "एकल परिवार का घर", price: 300000, image: "https://neal.fun/spend/images/single-family-home.jpg", count: 0 },
+            { id: 32, name: "सोने की छड़", price: 700000, image: "https://neal.fun/spend/images/gold-bar.jpg", count: 0 },
+            { id: 33, name: "मैकडॉनल्ड्स फ्रेंचाइज़", price: 1500000, image: "https://neal.fun/spend/images/mcdonalds-franchise.jpg", count: 0 },
+            { id: 34, name: "सुपरबाउल विज्ञापन", price: 5250000, image: "https://neal.fun/spend/images/superbowl-ad.jpg", count: 0 },
+            { id: 35, name: "यॉट", price: 7500000, image: "https://neal.fun/spend/images/yacht.jpg", count: 0 },
+            { id: 36, name: "एम1 अब्राम्स टैंक", price: 8000000, image: "https://neal.fun/spend/images/m1-abrams.jpg", count: 0 },
+            { id: 37, name: "फार्मूला 1 कार", price: 15000000, image: "https://neal.fun/spend/images/formula-1-car.jpg", count: 0 },
+            { id: 38, name: "अपाचे हेलीकॉप्टर", price: 31000000, image: "https://neal.fun/spend/images/apache-helicopter.jpg", count: 0 },
+            { id: 39, name: "महल", price: 45000000, image: "https://neal.fun/spend/images/mansion.jpg", count: 0 },
+            { id: 40, name: "फिल्म बनाना", price: 100000000, image: "https://neal.fun/spend/images/make-a-movie.jpg", count: 0 },
+            { id: 41, name: "बोइंग 747", price: 148000000, image: "https://neal.fun/spend/images/boeing-747.jpg", count: 0 },
+            { id: 42, name: "मोना लिसा", price: 780000000, image: "https://neal.fun/spend/images/mona-lisa.jpg", count: 0 },
+            { id: 43, name: "स्काइस्क्रेपर", price: 850000000, image: "https://neal.fun/spend/images/skyscraper.jpg", count: 0 },
+            { id: 44, name: "क्रूज़ शिप", price: 930000000, image: "https://neal.fun/spend/images/cruise-ship.jpg", count: 0 },
+            { id: 45, name: "एनबीए टीम", price: 2120000000, image: "https://neal.fun/spend/images/nba-team.jpg", count: 0 }
+        ];
+
+        // 数字格式化函数
+        function formatMoney(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // 更新显示的金额
+        function updateMoneyDisplay() {
+            const moneyLeftElement = document.getElementById('money-left');
+            const moneySpentElement = document.getElementById('money-spent');
+            
+            moneyLeftElement.textContent = formatMoney(currentMoney);
+            moneySpentElement.textContent = formatMoney(moneySpent);
+            
+            // 根据余额更改颜色
+            if (currentMoney < INITIAL_AMOUNT * 0.25) {
+                moneyLeftElement.classList.add('text-red-500');
+                moneyLeftElement.classList.remove('text-green-500', 'text-yellow-500');
+            } else if (currentMoney < INITIAL_AMOUNT * 0.5) {
+                moneyLeftElement.classList.add('text-yellow-500');
+                moneyLeftElement.classList.remove('text-green-500', 'text-red-500');
+            } else {
+                moneyLeftElement.classList.add('text-green-500');
+                moneyLeftElement.classList.remove('text-yellow-500', 'text-red-500');
+            }
+        }
+
+        // 更新产品的购买/销售按钮状态
+        function updateButtonStates(productId) {
+            const product = products.find(p => p.id === productId);
+            const sellBtn = document.getElementById(`sell-${productId}`);
+            const buyBtn = document.getElementById(`buy-${productId}`);
+            
+            // 检查是否可以卖出
+            if (product.count <= 0) {
+                sellBtn.disabled = true;
+                sellBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                sellBtn.disabled = false;
+                sellBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            // 检查是否可以购买
+            if (currentMoney < product.price) {
+                buyBtn.disabled = true;
+                buyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                buyBtn.disabled = false;
+                buyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+            
+            // 更新计数器
+            document.getElementById(`count-${productId}`).textContent = product.count;
+        }
+
+        // 买入产品
+        function buyProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (currentMoney >= product.price) {
+                product.count++;
+                currentMoney -= product.price;
+                moneySpent += product.price;
+                
+                updateMoneyDisplay();
+                updateButtonStates(productId);
+                updateAllButtonStates();
+            }
+        }
+
+        // 卖出产品
+        function sellProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (product.count > 0) {
+                product.count--;
+                currentMoney += product.price;
+                moneySpent -= product.price;
+                
+                updateMoneyDisplay();
+                updateButtonStates(productId);
+                updateAllButtonStates();
+            }
+        }
+
+        // 更新所有产品的按钮状态
+        function updateAllButtonStates() {
+            products.forEach(product => {
+                updateButtonStates(product.id);
+            });
+        }
+
+        // 创建产品卡片
+        function createProductCard(product) {
+            const productElement = document.createElement('div');
+            productElement.className = 'product-card bg-white rounded-lg shadow-md overflow-hidden';
+            
+            productElement.innerHTML = `
+                <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+                    <p class="text-2xl font-bold text-green-600 mb-4">${formatMoney(product.price)}</p>
+                    
+                    <div class="flex items-center justify-between">
+                        <button id="sell-${product.id}" class="btn-sell bg-red-500 text-white px-4 py-2 rounded-lg disabled:opacity-50" 
+                            onclick="sellProduct(${product.id})" disabled>
+                            बेचें
+                        </button>
+                        
+                        <span id="count-${product.id}" class="counter">0</span>
+                        
+                        <button id="buy-${product.id}" class="btn-buy bg-green-500 text-white px-4 py-2 rounded-lg"
+                            onclick="buyProduct(${product.id})">
+                            खरीदें
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return productElement;
+        }
+
+        // 初始化产品列表
+        function initializeProducts() {
+            const productsContainer = document.getElementById('products-container');
+            
+            products.forEach(product => {
+                const productCard = createProductCard(product);
+                productsContainer.appendChild(productCard);
+                updateButtonStates(product.id);
+            });
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            initializeProducts();
+            updateMoneyDisplay();
+        };
+    </script>
+</body>
+</html>
